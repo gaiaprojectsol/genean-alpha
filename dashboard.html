@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>My Genean</title>
+  <title>My Genean — Alpha</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body {
@@ -14,6 +14,7 @@
     .stat {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       margin-bottom: 6px;
     }
     button {
@@ -22,6 +23,23 @@
       color: white;
       cursor: pointer;
       padding: 4px 8px;
+      margin-left: 4px;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    #namingBox {
+      max-width: 400px;
+      margin-top: 40px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      color: #e6edf3;
+      margin-bottom: 12px;
     }
   </style>
 </head>
@@ -33,26 +51,44 @@
 
 <hr />
 
-<h2 id="geneanName"></h2>
-<p>Chainline: <span id="chainline"></span></p>
-<p>Points remaining today: <span id="points"></span></p>
+<!-- NAMING SCREEN -->
+<div id="namingBox" style="display:none;">
+  <h2>Name Your Genean</h2>
+  <p>This name will define your Genean in the Alpha.</p>
 
-<div id="stats"></div>
+  <input
+    id="geneanNameInput"
+    type="text"
+    placeholder="Enter Genean name"
+    maxlength="32"
+  />
 
-<button id="commitBtn" onclick="commit()" disabled>
-  Commit Today’s Growth
-</button>
+  <button onclick="createGenean()">Create Genean</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardContent" style="display:none;">
+  <h2 id="geneanName"></h2>
+  <p>Chainline: <span id="chainline"></span></p>
+  <p>Points remaining today: <span id="points"></span></p>
+
+  <div id="stats"></div>
+
+  <button id="commitBtn" onclick="commit()" disabled>
+    Commit Today’s Growth
+  </button>
+</div>
 
 <script>
   const supabaseClient = window.supabase.createClient(
-  "https://omqyafbpcqolkozzwrcl.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tcXlhZmJwY3FvbGtvenp3cmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2MTc2OTYsImV4cCI6MjA4MTE5MzY5Nn0.ff-qEqdl11wJxH-EDKYJIhXJYo_eHHN80PHZIFjnzBo"
-);
-
+    "https://omqyafbpcqolkozzwrcl.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tcXlhZmJwY3FvbGtvenp3cmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2MTc2OTYsImV4cCI6MjA4MTE5MzY5Nn0.ff-qEqdl11wJxH-EDKYJIhXJYo_eHHN80PHZIFjnzBo"
+  );
 
   let genean;
   let pointsRemaining = 0;
   let pendingStats = {};
+  let baseStats = {};
 
   async function init() {
     const { data } = await supabaseClient.auth.getUser();
@@ -71,28 +107,59 @@
       .single();
 
     if (!g) {
-      const { data: created } = await supabaseClient.from("geneans").insert({
-        user_id: data.user.id,
-        name: "Unnamed Genean",
-        chainline: "Genesis"
-      }).select().single();
-      genean = created;
-    } else {
-      genean = g;
+      document.getElementById("namingBox").style.display = "block";
+      return;
     }
+
+    genean = g;
+    setupGenean();
+  }
+
+  async function createGenean() {
+    const name = document.getElementById("geneanNameInput").value.trim();
+    if (!name) {
+      alert("Please enter a Genean name.");
+      return;
+    }
+
+    const { data: userData } = await supabaseClient.auth.getUser();
+
+    const { data, error } = await supabaseClient
+      .from("geneans")
+      .insert({
+        user_id: userData.user.id,
+        name: name,
+        chainline: "Genesis"
+      })
+      .select()
+      .single();
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    genean = data;
+    document.getElementById("namingBox").style.display = "none";
+    setupGenean();
+  }
+
+  function setupGenean() {
+    document.getElementById("dashboardContent").style.display = "block";
+    document.getElementById("geneanName").innerText = genean.name;
+    document.getElementById("chainline").innerText = genean.chainline;
 
     const today = new Date().toISOString().split("T")[0];
     pointsRemaining = genean.last_tick === today ? 0 : 3;
+
     pendingStats = { ...genean };
+    baseStats = { ...genean };
 
     render();
   }
 
   function render() {
-    document.getElementById("geneanName").innerText = genean.name;
-    document.getElementById("chainline").innerText = genean.chainline;
     document.getElementById("points").innerText = pointsRemaining;
-
     const statsDiv = document.getElementById("stats");
     statsDiv.innerHTML = "";
 
@@ -104,15 +171,28 @@
 
       row.innerHTML = `
         <span>${stat.toUpperCase()}: ${pendingStats[stat]}</span>
-        <button ${pointsRemaining === 0 ? "disabled" : ""}>+</button>
+        <div>
+          <button id="minus-${stat}">−</button>
+          <button id="plus-${stat}">+</button>
+        </div>
       `;
 
-      row.querySelector("button").onclick = () => {
-        if (pointsRemaining > 0) {
-          pendingStats[stat]++;
-          pointsRemaining--;
-          render();
-        }
+      const minusBtn = row.querySelector(`#minus-${stat}`);
+      const plusBtn = row.querySelector(`#plus-${stat}`);
+
+      minusBtn.disabled = pendingStats[stat] <= baseStats[stat];
+      plusBtn.disabled = pointsRemaining === 0;
+
+      plusBtn.onclick = () => {
+        pendingStats[stat]++;
+        pointsRemaining--;
+        render();
+      };
+
+      minusBtn.onclick = () => {
+        pendingStats[stat]--;
+        pointsRemaining++;
+        render();
       };
 
       statsDiv.appendChild(row);
@@ -123,7 +203,8 @@
 
   async function commit() {
     const today = new Date().toISOString().split("T")[0];
-    await supabaseClient.from("geneans")
+    await supabaseClient
+      .from("geneans")
       .update({ ...pendingStats, last_tick: today })
       .eq("id", genean.id);
 
