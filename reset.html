@@ -15,15 +15,16 @@
 <p id="msg"></p>
 
 <script>
-  const supabase = supabase.createClient(
+  const supabaseClient = window.supabase.createClient(
   "https://omqyafbpcqolkozzwrcl.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tcXlhZmJwY3FvbGtvenp3cmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2MTc2OTYsImV4cCI6MjA4MTE5MzY5Nn0.ff-qEqdl11wJxH-EDKYJIhXJYo_eHHN80PHZIFjnzBo"
 );
 
+
   async function updatePassword() {
     const password = document.getElementById("newPassword").value;
 
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error } = await supabaseClient.auth.updateUser({ password });
 
     document.getElementById("msg").innerText =
       error ? error.message : "Password updated. You can log in now.";
