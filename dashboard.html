@@ -41,6 +41,10 @@
       color: #e6edf3;
       margin-bottom: 12px;
     }
+    .subtle {
+      opacity: 0.7;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -70,7 +74,14 @@
 <div id="dashboardContent" style="display:none;">
   <h2 id="geneanName"></h2>
   <p>Chainline: <span id="chainline"></span></p>
-  <p>Points remaining today: <span id="points"></span></p>
+
+  <p>
+    Points remaining today: <strong><span id="points"></span></strong><br />
+    <span class="subtle">
+      Daily reset at 00:00 UTC — next reset in
+      <strong><span id="countdown"></span></strong>
+    </span>
+  </p>
 
   <div id="stats"></div>
 
@@ -89,6 +100,48 @@
   let pointsRemaining = 0;
   let pendingStats = {};
   let baseStats = {};
+
+  /* ---------- TIME HELPERS (UTC EXPLICIT) ---------- */
+
+  function utcToday() {
+    return new Date().toISOString().slice(0, 10); // YYYY-MM-DD (UTC)
+  }
+
+  function nextUtcMidnight() {
+    const now = new Date();
+    const next = new Date(Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() + 1,
+      0, 0, 0
+    ));
+    return next;
+  }
+
+  function startCountdown() {
+    function update() {
+      const now = new Date();
+      const diff = nextUtcMidnight() - now;
+
+      if (diff <= 0) {
+        document.getElementById("countdown").innerText = "resetting…";
+        location.reload();
+        return;
+      }
+
+      const hours = Math.floor(diff / 1000 / 60 / 60);
+      const minutes = Math.floor((diff / 1000 / 60) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      document.getElementById("countdown").innerText =
+        `${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    update();
+    setInterval(update, 1000);
+  }
+
+  /* ---------- INIT ---------- */
 
   async function init() {
     const { data } = await supabaseClient.auth.getUser();
@@ -149,12 +202,13 @@
     document.getElementById("geneanName").innerText = genean.name;
     document.getElementById("chainline").innerText = genean.chainline;
 
-    const today = new Date().toISOString().split("T")[0];
-    pointsRemaining = genean.last_tick === today ? 0 : 3;
+    const todayUtc = utcToday();
+    pointsRemaining = genean.last_tick === todayUtc ? 0 : 3;
 
     pendingStats = { ...genean };
     baseStats = { ...genean };
 
+    startCountdown();
     render();
   }
 
@@ -202,10 +256,11 @@
   }
 
   async function commit() {
-    const today = new Date().toISOString().split("T")[0];
+    const todayUtc = utcToday();
+
     await supabaseClient
       .from("geneans")
-      .update({ ...pendingStats, last_tick: today })
+      .update({ ...pendingStats, last_tick: todayUtc })
       .eq("id", genean.id);
 
     alert("Growth committed.");
