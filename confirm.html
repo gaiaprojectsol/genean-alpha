@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Email Confirmed — Genean Alpha</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: monospace;
+      background: #020617;
+      color: #e6edf3;
+      padding: 40px;
+      text-align: center;
+    }
+    .box {
+      max-width: 420px;
+      margin: 0 auto;
+      background: #111827;
+      padding: 32px;
+      border-radius: 8px;
+      border: 1px solid #1f2937;
+    }
+    .subtle {
+      opacity: 0.7;
+      font-size: 14px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h1>✅ Email Confirmed</h1>
+  <p>Thanks for confirming your email address.</p>
+
+  <p class="subtle">
+    You can now return to the Genean Alpha and begin your journey.
+  </p>
+
+  <button onclick="goToLogin()">Go to Login</button>
+</div>
+
+<script>
+  function goToLogin() {
+    window.location.href = "index.html";
+  }
+</script>
+
+</body>
+</html>
