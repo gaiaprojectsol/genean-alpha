@@ -44,17 +44,18 @@
 </button>
 
 <script>
-  const supabase = supabase.createClient(
+  const supabaseClient = window.supabase.createClient(
   "https://omqyafbpcqolkozzwrcl.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9tcXlhZmJwY3FvbGtvenp3cmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2MTc2OTYsImV4cCI6MjA4MTE5MzY5Nn0.ff-qEqdl11wJxH-EDKYJIhXJYo_eHHN80PHZIFjnzBo"
 );
+
 
   let genean;
   let pointsRemaining = 0;
   let pendingStats = {};
 
   async function init() {
-    const { data } = await supabase.auth.getUser();
+    const { data } = await supabaseClient.auth.getUser();
     if (!data.user) {
       window.location.href = "index.html";
       return;
@@ -63,14 +64,14 @@
     document.getElementById("userEmail").innerText =
       "Logged in as " + data.user.email;
 
-    const { data: g } = await supabase
+    const { data: g } = await supabaseClient
       .from("geneans")
       .select("*")
       .limit(1)
       .single();
 
     if (!g) {
-      const { data: created } = await supabase.from("geneans").insert({
+      const { data: created } = await supabaseClient.from("geneans").insert({
         user_id: data.user.id,
         name: "Unnamed Genean",
         chainline: "Genesis"
@@ -122,7 +123,7 @@
 
   async function commit() {
     const today = new Date().toISOString().split("T")[0];
-    await supabase.from("geneans")
+    await supabaseClient.from("geneans")
       .update({ ...pendingStats, last_tick: today })
       .eq("id", genean.id);
 
@@ -131,7 +132,7 @@
   }
 
   async function logout() {
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
     window.location.href = "index.html";
   }
 
