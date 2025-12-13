@@ -83,7 +83,7 @@
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabaseClient.auth.signUp({ email, password });
     document.getElementById("msg").innerText =
       error ? error.message : "Check your email to confirm your account.";
   }
@@ -92,7 +92,7 @@
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabaseClient.auth.signInWithPassword({
       email,
       password
     });
@@ -112,7 +112,7 @@
       return;
     }
 
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
       redirectTo: "https://gaiaprojectsol.github.io/genean-alpha/reset.html"
     });
 
