@@ -1,0 +1,329 @@
+/* ======================================================
+   GLOBAL
+====================================================== */
+body {
+  font-family: monospace;
+  background: #020617;
+  color: #e6edf3;
+  margin: 0;
+  padding: 0;
+}
+
+/* ======================================================
+   BACK TO DASHBOARD BUTTON
+====================================================== */
+#backToGeneanBtn {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  background: #1f2937;
+  color: #e6edf3;
+  border: 1px solid #374151;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#backToGeneanBtn:hover {
+  background: #374151;
+}
+
+/* ======================================================
+   INTRO SCREEN
+====================================================== */
+.intro-box {
+  max-width: 520px;
+  margin: 70px auto;
+  padding: 24px;
+  text-align: center;
+}
+
+.intro-gaia-title {
+  font-size: 13px;
+  letter-spacing: 2px;
+  opacity: 0.7;
+  margin-bottom: 6px;
+}
+
+.intro-main-title {
+  font-size: 26px;
+  margin-bottom: 12px;
+}
+
+.intro-text {
+  font-size: 14px;
+  opacity: 0.85;
+  line-height: 1.5;
+}
+
+.rules-title {
+  margin-top: 20px;
+  font-size: 16px;
+}
+
+.intro-list {
+  text-align: left;
+  font-size: 14px;
+  margin: 12px 0 20px 24px;
+}
+
+.seed-box {
+  margin-top: 20px;
+}
+
+.seed-box label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.seed-box input {
+  width: 100%;
+  padding: 12px;
+  background: #020617;
+  border: 1px solid #1f2937;
+  color: #e6edf3;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.seed-hint {
+  font-size: 12px;
+  opacity: 0.6;
+  margin-top: 6px;
+}
+
+.start-btn {
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px;
+  font-size: 16px;
+  background: #1f2937;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ======================================================
+   LEADERBOARD (INTRO)
+====================================================== */
+.leaderboard-box {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+}
+
+.leaderboard-title {
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+#leaderboard-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#leaderboard-list li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 4px 0;
+  border-bottom: 1px solid #1f2937;
+}
+
+.lb-top {
+  color: #93c5fd;
+}
+
+/* ======================================================
+   GAME CONTAINER
+====================================================== */
+.container {
+  max-width: 520px;
+  margin: 20px auto;
+  padding: 16px;
+}
+
+/* ======================================================
+   GENEAN PANEL
+====================================================== */
+.genean-panel {
+  background: #0b1220;
+  border: 1px solid #1f2937;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+#geneanName {
+  font-size: 15px;
+  color: #93c5fd;
+}
+
+.genean-stats {
+  margin-top: 6px;
+  opacity: 0.85;
+}
+
+.genean-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* ======================================================
+   CHART
+====================================================== */
+.chart-container {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+#chart-y-axis {
+  position: absolute;
+  top: 0;
+  left: -50px;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+#chart-x-axis {
+  text-align: right;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* ======================================================
+   GAME INFO GRID
+====================================================== */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.info-item label {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.info-item span {
+  font-size: 14px;
+}
+
+.big-price {
+  font-size: 20px;
+}
+
+/* ======================================================
+   BUTTONS
+====================================================== */
+#buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+#buttons button,
+#leverage-panel button {
+  width: 32%;
+  padding: 12px;
+  background: #1f2937;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ======================================================
+   LEVERAGE PANEL
+====================================================== */
+#leverage-panel {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+/* ======================================================
+   LOG
+====================================================== */
+#log {
+  margin-top: 12px;
+  font-size: 12px;
+  max-height: 120px;
+  overflow-y: auto;
+  opacity: 0.85;
+}
+
+/* ======================================================
+   SHARE BUTTON
+====================================================== */
+.share-button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  background: #111827;
+  border: 1px solid #1f2937;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.follow-note {
+  font-size: 11px;
+  opacity: 0.6;
+  text-align: center;
+}
+
+/* ======================================================
+   POPUP
+====================================================== */
+.popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.popup-content {
+  background: #020617;
+  border: 1px solid #1f2937;
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 360px;
+}
+
+.popup-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  background: #1f2937;
+  border: none;
+  color: white;
+  border-radius: 6px;
+}
+
+.popup-btn.cancel {
+  background: #111827;
+}
+
+/* ======================================================
+   DESKTOP POLISH
+====================================================== */
+@media (min-width: 768px) {
+  .intro-box,
+  .container,
+  .leaderboard-box {
+    max-width: 560px;
+  }
+}
