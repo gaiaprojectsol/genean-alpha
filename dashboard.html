@@ -18,18 +18,21 @@
       padding: 16px;
     }
 
-    h1, h2 {
+    h1, h2, h3 {
       margin-top: 0;
     }
 
-    button {
+    button, a.button-link {
       background: #1f2937;
-      border: none;
+      border: 1px solid #374151;
       color: white;
       cursor: pointer;
       padding: 12px 16px;
       font-size: 14px;
       border-radius: 8px;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
     }
 
     button:disabled {
@@ -48,15 +51,24 @@
       font-size: 16px; /* prevents mobile zoom */
     }
 
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #0b1220;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
     .stat {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px;
       margin-bottom: 10px;
-      background: #0b1220;
-      border: 1px solid #1f2937;
-      border-radius: 10px;
     }
 
     .stat span {
@@ -68,21 +80,8 @@
       gap: 8px;
     }
 
-    #stats {
-      margin-top: 12px;
-    }
-
-    #commitBtn {
+    .full-width {
       width: 100%;
-      margin-top: 20px;
-      padding: 16px;
-      font-size: 16px;
-    }
-
-    #namingBox,
-    #dashboardContent {
-      max-width: 480px;
-      margin: 0 auto;
     }
 
     .subtle {
@@ -97,59 +96,105 @@
       margin: 16px 0;
     }
 
+    .game-link {
+      margin-top: 12px;
+      width: 100%;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
     /* Desktop polish */
     @media (min-width: 768px) {
       body {
         padding: 32px;
-      }
-
-      .stat {
-        padding: 10px 14px;
       }
     }
   </style>
 </head>
 <body>
 
-<h1>My Genean</h1>
-<p id="userEmail"></p>
-<button onclick="logout()">Logout</button>
+<div class="container">
 
-<hr />
+  <!-- HEADER -->
+  <div class="top-bar">
+    <div>
+      <h1>My Genean</h1>
+      <p id="userEmail" class="subtle"></p>
+    </div>
+    <button onclick="logout()">Logout</button>
+  </div>
 
-<!-- NAMING SCREEN -->
-<div id="namingBox" style="display:none;">
-  <h2>Name Your Genean</h2>
-  <p>This name will define your Genean in the Alpha.</p>
+  <!-- NAMING SCREEN -->
+  <div id="namingBox" class="card" style="display:none;">
+    <h2>Name Your Genean</h2>
+    <p class="subtle">
+      This name represents your Genean across the Alpha.
+    </p>
 
-  <input
-    id="geneanNameInput"
-    type="text"
-    placeholder="Enter Genean name"
-    maxlength="32"
-  />
+    <input
+      id="geneanNameInput"
+      type="text"
+      placeholder="Enter Genean name"
+      maxlength="32"
+    />
 
-  <button onclick="createGenean()">Create Genean</button>
-</div>
+    <button class="full-width" onclick="createGenean()">Create Genean</button>
+  </div>
 
-<!-- DASHBOARD -->
-<div id="dashboardContent" style="display:none;">
-  <h2 id="geneanName"></h2>
-  <p>Chainline: <span id="chainline"></span></p>
+  <!-- DASHBOARD -->
+  <div id="dashboardContent" style="display:none;">
 
-  <p>
-    Points remaining today: <strong><span id="points"></span></strong><br />
-    <span class="subtle">
-      Daily reset at 00:00 UTC — next reset in
-      <strong><span id="countdown"></span></strong>
-    </span>
-  </p>
+    <!-- GENEAN INFO -->
+    <div class="card">
+      <h2 id="geneanName"></h2>
+      <p>Chainline: <strong><span id="chainline"></span></strong></p>
 
-  <div id="stats"></div>
+      <p>
+        Points remaining today:
+        <strong><span id="points"></span></strong><br />
+        <span class="subtle">
+          Daily reset at 00:00 UTC — next reset in
+          <strong><span id="countdown"></span></strong>
+        </span>
+      </p>
+    </div>
 
-  <button id="commitBtn" onclick="commit()" disabled>
-    Commit Today’s Growth
-  </button>
+    <!-- STATS -->
+    <div class="card">
+      <h3>Attributes</h3>
+      <div id="stats"></div>
+
+      <button
+        id="commitBtn"
+        class="full-width"
+        onclick="commit()"
+        disabled
+      >
+        Commit Today’s Growth
+      </button>
+    </div>
+
+    <!-- GAMES -->
+    <div class="card">
+      <h3>Games</h3>
+      <p class="subtle">
+        Your Genean’s traits directly influence gameplay.
+      </p>
+
+      <a
+        href="https://gaiaprojectsol.github.io/genean-alpha/games/greater-fool/"
+        class="button-link game-link"
+      >
+        ▶ Play Greater Fool Trading Game
+      </a>
+    </div>
+
+  </div>
 </div>
 
 <script>
