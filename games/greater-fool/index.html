@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Greater Fool Trading Game — Gaia Project</title>
+
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- BACK TO GENEAN DASHBOARD -->
+    <button id="backToGeneanBtn" class="back-btn">
+        ← Back to My Genean
+    </button>
+
+    <!-- INTRO SCREEN -->
+    <div id="intro-screen" class="intro-box">
+        <h2 class="intro-gaia-title">GAIA PROJECT</h2>
+        <h1 class="intro-main-title">Greater Fool Trading Game</h1>
+
+        <p class="intro-text">
+            Your mission: End the round with the highest wealth.<br><br>
+            The market reacts to bots, whale events, mega whales, and chaos.<br>
+            When the timer hits zero →
+            <strong>THE DEV RUGS THE MARKET (Price = $0)</strong>.
+        </p>
+
+        <h3 class="rules-title">Basic Rules</h3>
+        <ul class="intro-list">
+            <li>💰 Start with $100</li>
+            <li>📈 Buy & sell shares</li>
+            <li>🐋 Whales pump or dump the price massively</li>
+            <li>💥 Mega whales pump $500–$2000 instantly</li>
+            <li>⚙ Genean stats alter gameplay physics</li>
+            <li>🎨 Creativity unlocks leverage trading</li>
+        </ul>
+
+        <!-- SEED INPUT -->
+        <div id="seed-box" class="seed-box">
+            <label for="seed-input">Game Seed (optional):</label>
+            <input id="seed-input" type="number" placeholder="Leave blank for random">
+            <p class="seed-hint">
+                Share this seed so others can play the exact same price movements.
+            </p>
+        </div>
+
+        <!-- GLOBAL LEADERBOARD -->
+        <div id="leaderboard" class="leaderboard-box">
+            <h3 class="leaderboard-title">🌍 GLOBAL LEADERBOARD</h3>
+            <ul id="leaderboard-list"></ul>
+        </div>
+
+        <!-- START BUTTON -->
+        <button id="start-game-btn" class="start-btn">
+            Start Game
+        </button>
+    </div>
+
+    <!-- MAIN GAME UI -->
+    <div class="container" style="display:none;">
+
+        <h2 class="gaia-title">Gaia Project Presents</h2>
+        <h1 class="game-title">📉 Greater Fool Trading Game</h1>
+
+        <!-- GENEAN INFO (REPLACES CHARACTER SELECT) -->
+        <div class="genean-panel">
+            <div>
+                <strong>Genean:</strong>
+                <span id="geneanName">—</span>
+            </div>
+            <div class="genean-stats">
+                WIS <span id="statWIS">0</span> •
+                LUCK <span id="statLUCK">0</span> •
+                CRT <span id="statCRT">0</span>
+            </div>
+            <div class="genean-hint">
+                Your Genean subtly alters probability, volatility, and leverage access.
+            </div>
+        </div>
+
+        <!-- CHART -->
+        <div class="chart-container">
+            <canvas id="priceChart" width="400" height="120"></canvas>
+            <div id="chart-y-axis"></div>
+            <div id="chart-x-axis"></div>
+        </div>
+
+        <!-- GAME INFO GRID -->
+        <div id="game-info" class="info-grid">
+
+            <div class="info-item">
+                <label>Price</label>
+                <span class="big-price" id="price">$1.00</span>
+            </div>
+
+            <div class="info-item">
+                <label>Cash</label>
+                <span id="cash">$100.00</span>
+            </div>
+
+            <div class="info-item">
+                <label>Shares</label>
+                <span id="shares">0</span>
+            </div>
+
+            <div class="info-item">
+                <label>Wealth</label>
+                <span id="wealth">$100.00</span>
+            </div>
+
+            <div class="info-item">
+                <label>Time</label>
+                <span id="timer">180</span>s
+            </div>
+
+        </div>
+
+        <!-- BUTTONS -->
+        <div id="buttons">
+            <button id="buy-btn">
+                Buy (<span id="buyAmountBtn">0</span>)
+            </button>
+            <button id="sell-btn">
+                Sell (<span id="sellAmountBtn">0</span>)
+            </button>
+        </div>
+
+        <!-- LEVERAGE -->
+        <div id="leverage-panel" style="display:none; margin-top:12px;">
+            <button id="long-btn">
+                Long (x<span id="levVal1"></span>)
+            </button>
+            <button id="short-btn">
+                Short (x<span id="levVal2"></span>)
+            </button>
+            <button id="close-pos-btn" disabled style="opacity:0.3;">
+                Close
+            </button>
+        </div>
+
+        <!-- LOG -->
+        <div id="log"></div>
+
+        <!-- FOLLOW -->
+        <button id="share-btn" class="share-button">
+            Follow Us on X
+        </button>
+        <p class="follow-note">
+            Watch this project being built in real time.
+        </p>
+
+    </div>
+
+    <!-- END GAME POPUP -->
+    <div id="share-popup" class="popup" style="display:none;">
+        <div class="popup-content">
+            <h3>End of Game Stats</h3>
+
+            <p>Final Wealth: <span id="popup-wealth">$0.00</span></p>
+            <p>Return: <span id="popup-return">0%</span></p>
+
+            <p>Highest Price: <span id="popup-high">$0</span></p>
+            <p>Lowest Price: <span id="popup-low">$0</span></p>
+
+            <p>Whale Entries: <span id="popup-whales-in">0</span></p>
+            <p>Whale Exits: <span id="popup-whales-out">0</span></p>
+            <p>Mega Whales: <span id="popup-megawhales">0</span></p>
+
+            <p>Biggest Up Move: <span id="popup-bigup">0</span></p>
+            <p>Biggest Down Move: <span id="popup-bigdown">0</span></p>
+
+            <p>Seed: <span id="popup-seed">-</span></p>
+
+            <!-- SUBMIT SCORE -->
+            <div id="submit-score">
+                <input
+                    id="player-name"
+                    maxlength="10"
+                    placeholder="Genean name used automatically"
+                    disabled
+                >
+                <button id="submit-score-btn" class="popup-btn">
+                    Submit Score
+                </button>
+            </div>
+
+            <button id="popup-share" class="popup-btn">
+                Follow us on X
+            </button>
+            <button id="popup-close" class="popup-btn cancel">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+
+</body>
+</html>
