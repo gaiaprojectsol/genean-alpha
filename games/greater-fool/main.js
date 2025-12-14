@@ -137,27 +137,30 @@ async function loadGenean() {
 //----------------------------------------------------------
 // INTRO → START GAME (NO CHARACTER SELECT)
 //----------------------------------------------------------
-document.getElementById("start-game-btn").addEventListener("click", async () => {
-  const seedInput = document.getElementById("seed-input");
-  let seed = parseInt(seedInput.value, 10);
+document.getElementById("start-game-btn").addEventListener("click", () => {
+    const seedInput = document.getElementById("seed-input");
+    let seed = parseInt(seedInput.value, 10);
 
-  if (!Number.isFinite(seed) || seed <= 0) {
-    seed = Math.floor(Math.random() * 1_000_000_000);
-    seedInput.value = seed;
-  }
+    // Generate seed if missing
+    if (!Number.isFinite(seed) || seed <= 0) {
+        seed = Math.floor(Math.random() * 1_000_000_000);
+        seedInput.value = seed;
+    }
 
-  currentSeed = seed;
-  rng = mulberry32(seed);
+    currentSeed = seed;
+    rng = mulberry32(seed);
 
-  const genean = await loadGenean();
-  if (!genean) return;
+    // Hide intro
+    document.getElementById("intro-screen").style.display = "none";
 
-  document.getElementById("intro-screen").style.display = "none";
-  document.querySelector(".container").style.display = "block";
+    // Show game container
+    document.querySelector(".container").style.display = "block";
 
-  attachTradingButtons();
-  startGame();
+    // Attach buttons + start game
+    attachTradingButtons();
+    startGame();
 });
+
 
 //----------------------------------------------------------
 // BOT RANDOM MOVES (seeded)
