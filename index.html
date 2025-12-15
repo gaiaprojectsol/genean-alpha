@@ -118,10 +118,22 @@
   );
 
   async function signUp() {
-    const email = document.getElementById("email").value;
+    const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
 
-    const { error } = await supabaseClient.auth.signUp({ email, password });
+    if (!email || !password) {
+      document.getElementById("msg").innerText = "Enter an email and password.";
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: "https://gaiaprojectsol.github.io/genean-alpha/dashboard.html"
+      }
+    });
+
     document.getElementById("msg").innerText =
       error ? error.message : "Check your email to confirm your account.";
   }
