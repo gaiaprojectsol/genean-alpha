@@ -133,7 +133,7 @@ async function loadGeneanAndApplyStats() {
   maxLeverage = 1 + Math.floor((CRT / 100) * 24);
 
   // UI (these IDs exist in your greater-fool HTML)
-  const nameEl = document.getElementById("charName");
+  const nameEl = document.getElementById("geneanName");
   const wisEl = document.getElementById("statWIS");
   const luckEl = document.getElementById("statLUCK");
   const crtEl = document.getElementById("statCRT");
@@ -175,7 +175,7 @@ function attachTradingButtons() {
   addClick("long-btn", () => openLeverage("long"));
   addClick("short-btn", () => openLeverage("short"));
   addClick("close-pos-btn", closePosition);
-  addClick("share-btn", followOnX);
+  // addClick("share-btn", followOnX);
 
   const popShare = document.getElementById("popup-share");
   if (popShare) popShare.addEventListener("click", followOnX);
@@ -542,8 +542,9 @@ function rugEvent() {
 
   if (pSeed) pSeed.textContent = currentSeed !== null ? currentSeed : "-";
 
-  const popup = document.getElementById("share-popup");
-  if (popup) popup.style.display = "flex";
+// Popup disabled for Genean Alpha build
+  //const popup = document.getElementById("share-popup");
+  //if (popup) popup.style.display = "flex";
 }
 
 //----------------------------------------------------------
