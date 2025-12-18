@@ -1,0 +1,391 @@
+<!--
+Version 1.0
+Prompt Engineer: Sefron Caldral
+Date: 19/12/2025
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Genean — Alpha</title>
+
+  <!-- REQUIRED FOR MOBILE -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      font-family: monospace;
+      background: #020617;
+      color: #e6edf3;
+      margin: 0;
+      padding: 16px;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    button, a.button-link {
+      background: #1f2937;
+      border: 1px solid #374151;
+      color: white;
+      cursor: pointer;
+      padding: 12px 16px;
+      font-size: 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      color: #e6edf3;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #0b1220;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .stat span {
+      font-size: 15px;
+    }
+
+    .stat div {
+      display: flex;
+      gap: 8px;
+    }
+
+    .full-width {
+      width: 100%;
+    }
+
+    .subtle {
+      opacity: 0.7;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .leaderboard-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 32px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="top-bar">
+    <div>
+      <h1>My Genean</h1>
+      <p id="userEmail" class="subtle"></p>
+    </div>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <!-- NAMING SCREEN -->
+  <div id="namingBox" class="card" style="display:none;">
+    <h2>Name Your Genean</h2>
+    <p class="subtle">
+      This name represents your Genean across the Alpha.
+    </p>
+
+    <input
+      id="geneanNameInput"
+      type="text"
+      placeholder="Enter Genean name"
+      maxlength="32"
+    />
+
+    <button class="full-width" onclick="createGenean()">Create Genean</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboardContent" style="display:none;">
+
+    <!-- GENEAN INFO -->
+    <div class="card">
+      <h2 id="geneanName"></h2>
+      <p>Chainline: <strong><span id="chainline"></span></strong></p>
+
+      <p>
+        Points remaining today:
+        <strong><span id="points"></span></strong><br />
+        <span class="subtle">
+          Daily reset at 00:00 UTC — next reset in
+          <strong><span id="countdown"></span></strong>
+        </span>
+      </p>
+    </div>
+
+    <!-- STATS -->
+    <div class="card">
+      <h3>Attributes</h3>
+      <div id="stats"></div>
+
+      <button
+        id="commitBtn"
+        class="full-width"
+        onclick="commit()"
+        disabled
+      >
+        Commit Today’s Growth
+      </button>
+    </div>
+
+    <!-- GAMES -->
+    <div class="card">
+      <h3>Games</h3>
+      <p class="subtle">
+        Your Genean’s traits directly influence gameplay.
+      </p>
+
+      <a
+        href="https://gaiaprojectsol.github.io/genean-alpha/games/greater-fool/"
+        class="button-link full-width"
+      >
+        ▶ Play Greater Fool Trading Game
+      </a>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <div class="card">
+      <h3>Genean Leaderboard</h3>
+      <p class="subtle">Ranked by total lived essence.</p>
+
+      <div id="leaderboard">
+        Loading leaderboard…
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const supabaseClient = window.supabase.createClient(
+    "https://omqyafbpcqolkozzwrcl.supabase.co",
+    "YOUR_PUBLIC_ANON_KEY"
+  );
+
+  let genean;
+  let pointsRemaining = 0;
+  let pendingStats = {};
+  let baseStats = {};
+
+  function utcToday() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function nextUtcMidnight() {
+    const now = new Date();
+    return new Date(Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() + 1
+    ));
+  }
+
+  function startCountdown() {
+    function update() {
+      const diff = nextUtcMidnight() - new Date();
+      if (diff <= 0) location.reload();
+
+      const h = Math.floor(diff / 1000 / 60 / 60);
+      const m = Math.floor((diff / 1000 / 60) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+
+      document.getElementById("countdown").innerText =
+        `${h}h ${m}m ${s}s`;
+    }
+    update();
+    setInterval(update, 1000);
+  }
+
+  async function init() {
+    const { data } = await supabaseClient.auth.getUser();
+    if (!data.user) {
+      window.location.href = "index.html";
+      return;
+    }
+
+    document.getElementById("userEmail").innerText =
+      "Logged in as " + data.user.email;
+
+    const { data: g } = await supabaseClient
+      .from("geneans")
+      .select("*")
+      .eq("user_id", data.user.id)
+      .single();
+
+    if (!g) {
+      document.getElementById("namingBox").style.display = "block";
+      return;
+    }
+
+    genean = g;
+    setupGenean();
+  }
+
+  async function createGenean() {
+    const name = document.getElementById("geneanNameInput").value.trim();
+    if (!name) return alert("Please enter a Genean name.");
+
+    const { data: userData } = await supabaseClient.auth.getUser();
+
+    const { data } = await supabaseClient
+      .from("geneans")
+      .insert({
+        user_id: userData.user.id,
+        name,
+        chainline: "Genesis"
+      })
+      .select()
+      .single();
+
+    genean = data;
+    document.getElementById("namingBox").style.display = "none";
+    setupGenean();
+  }
+
+  function setupGenean() {
+    document.getElementById("dashboardContent").style.display = "block";
+    document.getElementById("geneanName").innerText = genean.name;
+    document.getElementById("chainline").innerText = genean.chainline;
+
+    pointsRemaining = genean.last_tick === utcToday() ? 0 : 3;
+    pendingStats = { ...genean };
+    baseStats = { ...genean };
+
+    startCountdown();
+    render();
+    loadLeaderboard();
+  }
+
+  function render() {
+    document.getElementById("points").innerText = pointsRemaining;
+    const statsDiv = document.getElementById("stats");
+    statsDiv.innerHTML = "";
+
+    const stats = ["vit","str","agi","wis","int","cha","frt","per","lck","crt"];
+
+    stats.forEach(stat => {
+      const row = document.createElement("div");
+      row.className = "stat";
+
+      row.innerHTML = `
+        <span>${stat.toUpperCase()}: ${pendingStats[stat]}</span>
+        <div>
+          <button ${pendingStats[stat] <= baseStats[stat] ? "disabled" : ""}>−</button>
+          <button ${pointsRemaining === 0 ? "disabled" : ""}>+</button>
+        </div>
+      `;
+
+      const [minusBtn, plusBtn] = row.querySelectorAll("button");
+
+      plusBtn.onclick = () => {
+        pendingStats[stat]++;
+        pointsRemaining--;
+        render();
+      };
+
+      minusBtn.onclick = () => {
+        pendingStats[stat]--;
+        pointsRemaining++;
+        render();
+      };
+
+      statsDiv.appendChild(row);
+    });
+
+    document.getElementById("commitBtn").disabled = pointsRemaining !== 0;
+  }
+
+  async function commit() {
+    await supabaseClient
+      .from("geneans")
+      .update({ ...pendingStats, last_tick: utcToday() })
+      .eq("id", genean.id);
+
+    alert("Growth committed.");
+    location.reload();
+  }
+
+  async function loadLeaderboard() {
+    const { data, error } = await supabaseClient
+      .from("genean_leaderboard")
+      .select("rank, name, total_stats")
+      .order("rank", { ascending: true })
+      .limit(20);
+
+    const container = document.getElementById("leaderboard");
+
+    if (error) {
+      container.innerText = "Failed to load leaderboard.";
+      return;
+    }
+
+    container.innerHTML = data.map(g =>
+      `<div class="leaderboard-row">
+        <span>#${g.rank} — ${g.name}</span>
+        <span>${g.total_stats}</span>
+      </div>`
+    ).join("");
+  }
+
+  async function logout() {
+    await supabaseClient.auth.signOut();
+    window.location.href = "index.html";
+  }
+
+  init();
+</script>
+
+</body>
+</html>
